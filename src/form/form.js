@@ -4,30 +4,39 @@ const form = document.querySelector("form");
 const errorElement = document.querySelector("#errors");
 let errors = [];
 
-form.addEventListener("submit", async event => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(form);
   const article = Object.fromEntries(formData.entries());
   if (formIsValid(article)) {
-    const json = JSON.stringify(article);
-    // Nous ferons la requête ici !
+    try {
+      const json = JSON.stringify(article);
+      const response = await fetch("https://restapi.fr/api/article", {
+        method: "POST",
+        body: json, 
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const body = await response.json();
+      console.log(body);
+    } catch (e) {
+      console.error("e : ", e);
+    }
   }
 });
 
-const formIsValid = article => {
+const formIsValid = (article) => {
   errors = [];
-  if (
-    !article.author ||
-    !article.category ||
-    !article.content
-  ) {
+  if (!article.author || !article.category || !article.content) {
     errors.push("Vous devez renseigner tous les champs");
   } else {
     errors = [];
   }
   if (errors.length) {
     let errorHTML = "";
-    errors.forEach(e => {
+    errors.forEach((e) => {
       errorHTML += `<li>${e}</li>`;
     });
     errorElement.innerHTML = errorHTML;
